@@ -1,0 +1,16 @@
+{
+"version": "0.2.0",
+"configurations": [
+{
+"name": "Attach to Node.js",
+"type": "node",
+"request": "attach",
+"restart": true,
+"port": 3001,
+"sourceMaps": true,
+"outFiles": ["${workspaceFolder}/dist/*/.js"],
+"remoteRoot": "/usr/src/app/src",
+"skipFiles": ["<node_internals>/*/.js"],
+}
+]
+}
