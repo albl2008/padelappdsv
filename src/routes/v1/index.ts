@@ -3,6 +3,7 @@ import authRoute from './auth.route';
 import docsRoute from './swagger.route';
 import userRoute from './user.route';
 import courtsRoute from './courts.route';
+import shiftsRoute from './shifts.route'
 import config from '../../config/config';
 import configRoute from './config.route';
 
@@ -29,6 +30,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/courts',
     route: courtsRoute,
+  },
+  {
+    path: '/shifts',
+    route: shiftsRoute,
   },
 ];
 
