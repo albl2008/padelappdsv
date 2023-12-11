@@ -10,8 +10,14 @@ router
   .post(auth('manageShifts'), validate(shiftValidation.createShift), shiftController.createShift)
   .get(auth('getShifts'), validate(shiftValidation.getShifts), shiftController.getShifts);
 
+
 router
-    .route('/createShiftsMonth')
+  .route('/:month/getMonth')
+  .get(auth('getShifts'), validate(shiftValidation.getShiftsMonth), shiftController.getShiftsMonth)
+
+
+router
+    .route('/:month/createShiftsMonth')
     .post(auth('manageShifts'), validate(shiftValidation.createShiftsMonth), shiftController.createShiftsMonth)
 
 router

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import toJSON from '../toJSON/toJSON';
 import paginate from '../paginate/paginate';
 import { IShiftDoc, IShiftModel } from './shifts.interfaces';
@@ -32,6 +32,16 @@ const shiftSchema = new mongoose.Schema<IShiftDoc, IShiftModel>(
         required:true,
       }
     },
+    client: {
+      type: String,
+    },
+    court:{
+      type: Schema.Types.ObjectId,
+      ref:'Court'
+    },
+    price: {
+      type: Number
+    }
   },
   {
     timestamps: true,

@@ -17,8 +17,17 @@ export const createShift = {
   body: Joi.object().keys(createShiftBody),
 };
 
+export const getShiftsMonth = {
+  params: Joi.object().keys({
+    month: Joi.date().required(),
+  }),
+}
+
 
 export const createShiftsMonth = {
+  params: Joi.object().keys({
+    month: Joi.date().required(),
+  }),
   body: Joi.object().keys({
     shiftDuration: Joi.number().required().valid(1,1.5, 2,2.5,3),
     shiftsPerDay: Joi.number().required(),
@@ -58,7 +67,10 @@ export const updateShift = {
       status: Joi.object().keys({
         id:Joi.number(),
         sta:Joi.string()
-      })
+      }),
+      court: Joi.string().custom(objectId),
+      price: Joi.number(),
+      client: Joi.string()
       })
     .min(1),
 };
