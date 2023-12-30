@@ -10,6 +10,13 @@ import { ApiError } from '../errors';
 export const register = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.registerUser(req.body);
   const tokens = await tokenService.generateAuthTokens(user);
+  const userCreated = await userService.getUserByEmail(req.body.email);
+  if(!userCreated){
+    throw new ApiError(httpStatus.NOT_FOUND, 'No se encontro el usuario')
+  }
+  const verifyEmailToken = await tokenService.generateVerifyEmailToken(userCreated);
+  await emailService.sendVerificationEmailUser(userCreated.email, verifyEmailToken, userCreated.name);
+
   res.status(httpStatus.CREATED).send({ user, tokens });
 });
 
