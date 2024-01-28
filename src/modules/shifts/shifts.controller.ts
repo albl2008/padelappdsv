@@ -33,7 +33,8 @@ export const getShift = catchAsync(async (req: Request, res: Response) => {
 
 export const getShiftsMonth = catchAsync(async(req:Request, res: Response)=> {
   const month = dayjs(req.params['month']).toDate()
-  month.setMonth(month.getMonth()+1)
+  month.setMonth(month.getMonth()-1)
+  debugger
   const created = await shiftService.doShiftsExistForDate(month)
   if (!created) {
     res.send(false);
@@ -47,8 +48,13 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
   try {
     const configData = req.body;
     const month = dayjs(req.params['month']).toDate()
-    month.setMonth(month.getMonth()+1)
-    
+    month.setMonth(month.getMonth()-1)
+
+    const created = await shiftService.doShiftsExistForDate(month)
+    if (created) {
+      await shiftService.deleteShiftsForDate(month)
+    }
+    debugger
     // Generate shifts based on configData
     if (month){
         const shifts = generateShifts(month,configData);
@@ -66,7 +72,7 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
 
 
 const generateShifts = (month: Date, configData: any) => {
-  const { shiftDuration, shiftsPerDay, firstShift } = configData;
+  const { shiftDuration, shiftsPerDay, firstShift, tolerance } = configData;
   const shifts = [];
 
   // Get the first day of the current month
@@ -96,8 +102,8 @@ const generateShifts = (month: Date, configData: any) => {
         date: currentDate.toDate(),
         start: startDate.toDate(),
         end: endDate.toDate(),
+        tolerance: tolerance,
         status: { id: 0, sta: 'available' },
-        // Add other properties as needed
       });
     }
   }
@@ -106,6 +112,15 @@ const generateShifts = (month: Date, configData: any) => {
 };
 export const updateShift = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['shiftId'] === 'string') {
+    const shift = await shiftService.updateShiftById(new mongoose.Types.ObjectId(req.params['shiftId']), req.body);
+    res.send(shift);
+  }
+});
+
+export const bookingShift = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params['shiftId'] === 'string') {
+    const shiftToAssing = req.body
+    shiftToAssing.status = { id: 1, sta: 'booked' }
     const shift = await shiftService.updateShiftById(new mongoose.Types.ObjectId(req.params['shiftId']), req.body);
     res.send(shift);
   }

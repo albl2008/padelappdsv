@@ -31,7 +31,7 @@ export const createShiftsMonth = async(shifts:any):Promise<any> => {
 export const doShiftsExistForDate = async (targetDate: Date): Promise<boolean> => {
   const startOfMonth = dayjs(targetDate).startOf('month');
   const endOfMonth = dayjs(targetDate).endOf('month');
-
+  debugger
   try {
     // Query the database for shifts within the given date range
     const shifts = await Shift.find({
@@ -40,10 +40,30 @@ export const doShiftsExistForDate = async (targetDate: Date): Promise<boolean> =
         $lte: endOfMonth.toDate(),
       },
     });
-    debugger
     return shifts.length > 0; // Return true if shifts exist, false otherwise
   } catch (error) {
     console.error('Error checking shifts for date:', error);
+    throw error;
+  }
+};
+
+
+export const deleteShiftsForDate = async (targetDate: Date): Promise<void> => {
+  const startOfMonth = dayjs(targetDate).startOf('month');
+  const endOfMonth = dayjs(targetDate).endOf('month');
+
+  try {
+    // Delete shifts within the given date range
+    await Shift.deleteMany({
+      date: {
+        $gte: startOfMonth.toDate(),
+        $lte: endOfMonth.toDate(),
+      },
+    });
+
+    console.log(`Shifts for ${startOfMonth.format('MMMM YYYY')} deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting shifts for date:', error);
     throw error;
   }
 };

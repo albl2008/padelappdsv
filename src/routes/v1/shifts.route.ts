@@ -16,9 +16,15 @@ router
   .get(auth('getShifts'), validate(shiftValidation.getShiftsMonth), shiftController.getShiftsMonth)
 
 
+
 router
     .route('/:month/createShiftsMonth')
     .post(auth('manageShifts'), validate(shiftValidation.createShiftsMonth), shiftController.createShiftsMonth)
+
+router
+    .route('/booking/:shiftId')
+    .patch(auth('manageShifts'), validate(shiftValidation.updateShift), shiftController.bookingShift)
+
 
 router
   .route('/:shiftId')

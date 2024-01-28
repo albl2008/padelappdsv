@@ -22,6 +22,10 @@ const shiftSchema = new mongoose.Schema<IShiftDoc, IShiftModel>(
       type: Date,
       required:true,
     },
+    tolerance: {
+      type: Number,
+      required:true,
+    },
     status: {
       id: {
         type: Number,

@@ -7,6 +7,7 @@ const createShiftBody: Record<keyof NewCreatedShift, any> = {
   date: Joi.date().required(),
   start: Joi.date().required(),
   end: Joi.date().required(),
+  tolerance: Joi.number().required(),
   status: Joi.object().keys({
     id:Joi.number().required(),
     sta:Joi.string().required()
@@ -31,6 +32,7 @@ export const createShiftsMonth = {
   body: Joi.object().keys({
     shiftDuration: Joi.number().required().valid(1,1.5, 2,2.5,3),
     shiftsPerDay: Joi.number().required(),
+    tolerance: Joi.number().required(),
     firstShift: Joi.date().required(),
   }
   ),

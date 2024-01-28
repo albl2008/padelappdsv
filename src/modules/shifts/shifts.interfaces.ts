@@ -8,6 +8,7 @@ export interface IShift {
   start: Date;
   end: Date;
   client?:String
+  tolerance: number
   court?:ObjectId
   price?:number
   status: {id:number,sta:string};
