@@ -11,6 +11,7 @@ export interface IShift {
   tolerance: number
   court?:ObjectId
   price?:number
+  user:ObjectId
   status: {id:number,sta:string};
 }
 
@@ -24,6 +25,6 @@ export interface IShiftModel extends Model<IShiftDoc> {
 export type UpdateShiftBody = Partial<IShift>;
 
 
-export type NewCreatedShift = Omit<IShift,'court'|'client'|'price'>;
+export type NewCreatedShift = Omit<IShift,'court'|'client'|'price' | 'user'>;
 
 

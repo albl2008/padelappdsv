@@ -8,6 +8,7 @@ import { IOptions } from '../paginate/paginate';
 import * as courtService from './courts.service';
 
 export const createCourt = catchAsync(async (req: Request, res: Response) => {
+  req.body.user = req.user.id;
   const court = await courtService.createCourt(req.body);
   res.status(httpStatus.CREATED).send(court);
 });
@@ -15,6 +16,7 @@ export const createCourt = catchAsync(async (req: Request, res: Response) => {
 export const getCourts = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'role']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
+  filter.user = req.user.id
   const result = await courtService.queryCourts(filter, options);
   res.send(result);
 });

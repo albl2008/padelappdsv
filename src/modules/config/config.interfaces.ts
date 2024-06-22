@@ -1,4 +1,4 @@
-import { Model, Document } from 'mongoose';
+import { Model, Document, ObjectId } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 
 
@@ -8,6 +8,8 @@ export interface IConfig {
   tolerance: number;
   firstShift: Date;
   shiftsPerDay: number;
+  operativeDays: number[]
+  user:ObjectId
 }
 
 export interface IConfigDoc extends IConfig, Document {

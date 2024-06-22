@@ -34,6 +34,7 @@ export const createShiftsMonth = {
     shiftsPerDay: Joi.number().required(),
     tolerance: Joi.number().required(),
     firstShift: Joi.date().required(),
+    operativeDays: Joi.array().required(),
   }
   ),
 };

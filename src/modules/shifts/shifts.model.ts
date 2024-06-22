@@ -45,6 +45,10 @@ const shiftSchema = new mongoose.Schema<IShiftDoc, IShiftModel>(
     },
     price: {
       type: Number
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref:'User'
     }
   },
   {

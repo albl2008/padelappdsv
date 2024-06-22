@@ -17,6 +17,7 @@ export const getShifts = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'role']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   options.limit = 2000
+  filter.user = req.user.id
   const result = await shiftService.queryShifts(filter, options);
   res.send(result);
 });
@@ -47,6 +48,7 @@ export const getShiftsMonth = catchAsync(async(req:Request, res: Response)=> {
 export const createShiftsMonth = catchAsync(async (req:Request, res:Response) => {
   try {
     const configData = req.body;
+    const user = req.user.id
     const month = dayjs(req.params['month']).toDate()
     month.setMonth(month.getMonth()-1)
 
@@ -57,7 +59,7 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
     debugger
     // Generate shifts based on configData
     if (month){
-        const shifts = generateShifts(month,configData);
+        const shifts = generateShifts(month,configData,user);
         await shiftService.createShiftsMonth(shifts);
         res.status(200).json({ message: 'Shifts created successfully' });
     }
@@ -71,8 +73,8 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
 });
 
 
-const generateShifts = (month: Date, configData: any) => {
-  const { shiftDuration, shiftsPerDay, firstShift, tolerance } = configData;
+const generateShifts = (month: Date, configData: any, user:mongoose.Types.ObjectId) => {
+  const { shiftDuration, shiftsPerDay, firstShift, tolerance, operativeDays } = configData;
   const shifts = [];
 
   // Get the first day of the current month
@@ -83,6 +85,9 @@ const generateShifts = (month: Date, configData: any) => {
   for (let i = firstDayOfMonth.date(); i <= lastDayOfMonth.date(); i++) {
     const currentDate = dayjs(firstDayOfMonth).set('date', i);
     for (let j = 0; j < shiftsPerDay; j++) {
+      if (!operativeDays.includes(currentDate.day())) {
+        continue;
+      }
       const startHour = dayjs(firstShift).get('hour') + j * shiftDuration;
       const endHour = startHour + shiftDuration;
       const minutes = dayjs(firstShift).get('minute');
@@ -104,6 +109,7 @@ const generateShifts = (month: Date, configData: any) => {
         end: endDate.toDate(),
         tolerance: tolerance,
         status: { id: 0, sta: 'available' },
+        user: user
       });
     }
   }

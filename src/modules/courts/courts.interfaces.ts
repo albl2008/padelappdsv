@@ -1,4 +1,4 @@
-import { Model, Document } from 'mongoose';
+import mongoose, { Model, Document } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 
 
@@ -8,6 +8,7 @@ export interface ICourt {
   surface: string;
   walls: string;
   inUse: boolean;
+  user: mongoose.Types.ObjectId;
 }
 
 export interface ICourtDoc extends ICourt, Document {
@@ -20,6 +21,6 @@ export interface ICourtModel extends Model<ICourtDoc> {
 export type UpdateCourtBody = Partial<ICourt>;
 
 
-export type NewCreatedCourt = Omit<ICourt, 'inUse'>;
+export type NewCreatedCourt = Omit<ICourt, 'inUse' | 'user'>;
 
 
