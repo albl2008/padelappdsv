@@ -10,6 +10,7 @@ export interface IConfig {
   shiftsPerDay: number;
   operativeDays: number[]
   user:ObjectId
+  courtsQuantity: number;
 }
 
 export interface IConfigDoc extends IConfig, Document {

@@ -25,6 +25,10 @@ router
     .route('/booking/:shiftId')
     .patch(auth('manageShifts'), validate(shiftValidation.updateShift), shiftController.bookingShift)
 
+router 
+  .route('/week/:day')
+  .get(auth('getShifts'), validate(shiftValidation.getWeekShifts), shiftController.getWeekShifts)
+
 
 router
   .route('/:shiftId')

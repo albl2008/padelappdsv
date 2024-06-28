@@ -10,6 +10,7 @@ const createConfigBody: Record<keyof NewCreatedConfig, any> = {
   tolerance: Joi.number().required(),
   operativeDays: Joi.array().required(),
   user: Joi.string().custom(objectId),
+  courtsQuantity: Joi.number().required(),
 
 //   inUse:Joi.boolean.required()
 };
@@ -47,6 +48,7 @@ export const updateConfig = {
       firstShift: Joi.date(),
       tolerance: Joi.number(),
       operativeDays: Joi.array(),
+      courtsQuantity: Joi.number(),
     })
     .min(1),
 };

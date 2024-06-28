@@ -1,4 +1,4 @@
-import mongoose, { Model, Document } from 'mongoose';
+import mongoose, { Model, Document, ObjectId } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 
 
@@ -9,12 +9,14 @@ export interface ICourt {
   walls: string;
   inUse: boolean;
   user: mongoose.Types.ObjectId;
+ 
 }
 
 export interface ICourtDoc extends ICourt, Document {
 }
 
 export interface ICourtModel extends Model<ICourtDoc> {
+  isNumberTaken(number: number, userId: ObjectId): Promise<boolean>;
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>;
 }
 

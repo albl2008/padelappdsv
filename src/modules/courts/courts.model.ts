@@ -13,14 +13,6 @@ const courtSchema = new mongoose.Schema<ICourtDoc, ICourtModel>(
     number: {
       type: Number,
       required: true,
-      unique: true,
-    //   trim: true,
-    //   lowercase: true,
-    //   validate(value: string) {
-    //     if (!validator.isEmail(value)) {
-    //       throw new Error('Invalid email');
-    //     }
-    //   },
     },
     surface: {
       type: String,
@@ -42,15 +34,26 @@ const courtSchema = new mongoose.Schema<ICourtDoc, ICourtModel>(
       ref: 'User',
       required: true,
     },
+    
   },
   {
     timestamps: true,
   }
 );
 
+courtSchema.index({ number: 1, user: 1 }, { unique: true });
+
+
 // add plugin that converts mongoose to json
 courtSchema.plugin(toJSON);
 courtSchema.plugin(paginate);
+
+courtSchema.static('isNumberTaken', async function (number: number, userId: mongoose.ObjectId): Promise<boolean> {
+  console.log(number,userId)
+  const court = await this.findOne({ number, user: userId });
+  return !!court;
+});
+
 
 
 const Court = mongoose.model<ICourtDoc, ICourtModel>('Court', courtSchema);

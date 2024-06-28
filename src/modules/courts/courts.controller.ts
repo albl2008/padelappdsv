@@ -6,9 +6,14 @@ import ApiError from '../errors/ApiError';
 import pick from '../utils/pick';
 import { IOptions } from '../paginate/paginate';
 import * as courtService from './courts.service';
+import Court from './courts.model';
 
 export const createCourt = catchAsync(async (req: Request, res: Response) => {
   req.body.user = req.user.id;
+  const isTaken = await Court.isNumberTaken(req.body.number, req.user.id);
+  if (isTaken) {
+    throw new Error('Court number is already taken for this user');
+  }
   const court = await courtService.createCourt(req.body);
   res.status(httpStatus.CREATED).send(court);
 });

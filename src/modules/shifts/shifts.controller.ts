@@ -7,6 +7,7 @@ import pick from '../utils/pick';
 import { IOptions } from '../paginate/paginate';
 import * as shiftService from './shifts.service';
 import dayjs from 'dayjs';
+import { courtService } from '../courts';
 
 export const createShift = catchAsync(async (req: Request, res: Response) => {
   const shift = await shiftService.createShift(req.body);
@@ -17,6 +18,7 @@ export const getShifts = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'role']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   options.limit = 2000
+  options.populate = 'court'
   filter.user = req.user.id
   const result = await shiftService.queryShifts(filter, options);
   res.send(result);
@@ -36,12 +38,9 @@ export const getShiftsMonth = catchAsync(async(req:Request, res: Response)=> {
   const month = dayjs(req.params['month']).toDate()
   month.setMonth(month.getMonth()-1)
   debugger
-  const created = await shiftService.doShiftsExistForDate(month)
-  if (!created) {
-    res.send(false);
-  } else {
-    res.send(created);
-  }
+  const created = await shiftService.doShiftsExistForDate(month,req.user.id)
+
+  res.send(created)
 
 })
 
@@ -52,14 +51,15 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
     const month = dayjs(req.params['month']).toDate()
     month.setMonth(month.getMonth()-1)
 
-    const created = await shiftService.doShiftsExistForDate(month)
+    const created = await shiftService.doShiftsExistForDate(month,req.user.id)
     if (created) {
       await shiftService.deleteShiftsForDate(month)
     }
     debugger
     // Generate shifts based on configData
     if (month){
-        const shifts = generateShifts(month,configData,user);
+        const shifts = await generateShifts(month,configData,user);
+        debugger
         await shiftService.createShiftsMonth(shifts);
         res.status(200).json({ message: 'Shifts created successfully' });
     }
@@ -73,8 +73,8 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
 });
 
 
-const generateShifts = (month: Date, configData: any, user:mongoose.Types.ObjectId) => {
-  const { shiftDuration, shiftsPerDay, firstShift, tolerance, operativeDays } = configData;
+const generateShifts = async (month: Date, configData: any, user: mongoose.Types.ObjectId) => {
+  const { shiftDuration, shiftsPerDay, firstShift, tolerance, operativeDays, courtsQuantity } = configData;
   const shifts = [];
 
   // Get the first day of the current month
@@ -84,33 +84,39 @@ const generateShifts = (month: Date, configData: any, user:mongoose.Types.Object
   // Loop through all days of the month
   for (let i = firstDayOfMonth.date(); i <= lastDayOfMonth.date(); i++) {
     const currentDate = dayjs(firstDayOfMonth).set('date', i);
+    if (!operativeDays.includes(currentDate.day())) {
+      continue;
+    }
     for (let j = 0; j < shiftsPerDay; j++) {
-      if (!operativeDays.includes(currentDate.day())) {
-        continue;
+      for (let k = 0; k < courtsQuantity; k++) {
+        const court = await courtService.getCourtByNumber(k + 1, user);
+        if (!court) {
+          throw new ApiError(httpStatus.NOT_FOUND, 'Court not found');
+        }
+        const startShift = dayjs(firstShift).add(j * shiftDuration, 'hour')
+        const endShift = startShift.add(shiftDuration, 'hour')
+
+        const startDate = currentDate
+          .set('hour', startShift.hour())
+          .set('minute', startShift.minute())
+          .startOf('minute');
+
+        const endDate = currentDate
+          .set('hour', endShift.hour())
+          .set('minute', endShift.minute())
+          .startOf('minute');
+
+        shifts.push({
+          duration: shiftDuration,
+          date: currentDate.toDate(),
+          start: startDate.toDate(),
+          end: endDate.toDate(),
+          tolerance: tolerance,
+          status: { id: 0, sta: 'available' },
+          user: user,
+          court: court.id,
+        });
       }
-      const startHour = dayjs(firstShift).get('hour') + j * shiftDuration;
-      const endHour = startHour + shiftDuration;
-      const minutes = dayjs(firstShift).get('minute');
-
-      const startDate = currentDate
-        .set('hour', startHour)
-        .set('minute', minutes)
-        .startOf('minute'); // Set both hour and minute, then startOf('minute')
-
-      const endDate = currentDate
-        .set('hour', endHour)
-        .set('minute', minutes)
-        .startOf('minute'); // Set both hour and minute, then startOf('minute')
-
-      shifts.push({
-        duration: shiftDuration,
-        date: currentDate.toDate(),
-        start: startDate.toDate(),
-        end: endDate.toDate(),
-        tolerance: tolerance,
-        status: { id: 0, sta: 'available' },
-        user: user
-      });
     }
   }
 
@@ -138,3 +144,11 @@ export const deleteShift = catchAsync(async (req: Request, res: Response) => {
     res.status(httpStatus.NO_CONTENT).send();
   }
 });
+
+export const getWeekShifts = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user.id
+  const day = dayjs(req.params['day']).toDate()
+
+  const shifts = await shiftService.getWeekShifts(day,user)
+  res.send(shifts)
+})

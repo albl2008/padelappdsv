@@ -45,6 +45,11 @@ const configSchema = new mongoose.Schema<IConfigDoc, IConfigModel>(
       ref: 'User',
       required: true,
     },
+    courtsQuantity: {
+      type: Number,
+      default: 1,
+      required: true,
+    },
   },
   {
     timestamps: true,

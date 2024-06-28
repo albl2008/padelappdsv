@@ -28,7 +28,7 @@ export const createShiftsMonth = async(shifts:any):Promise<any> => {
  * @param {Date} targetDate - The date to check for shifts
  * @returns {Promise<boolean>}
  */
-export const doShiftsExistForDate = async (targetDate: Date): Promise<boolean> => {
+export const doShiftsExistForDate = async (targetDate: Date, user:mongoose.Types.ObjectId): Promise<boolean> => {
   const startOfMonth = dayjs(targetDate).startOf('month');
   const endOfMonth = dayjs(targetDate).endOf('month');
   debugger
@@ -39,6 +39,7 @@ export const doShiftsExistForDate = async (targetDate: Date): Promise<boolean> =
         $gte: startOfMonth.toDate(),
         $lte: endOfMonth.toDate(),
       },
+      user
     });
     return shifts.length > 0; // Return true if shifts exist, false otherwise
   } catch (error) {
@@ -85,7 +86,7 @@ export const queryShifts = async (filter: Record<string, any>, options: IOptions
  * @param {mongoose.Types.ObjectId} id
  * @returns {Promise<IShiftDoc | null>}
  */
-export const getShiftById = async (id: mongoose.Types.ObjectId): Promise<IShiftDoc | null> => Shift.findById(id);
+export const getShiftById = async (id: mongoose.Types.ObjectId): Promise<IShiftDoc | null> => Shift.findById(id).populate('court');
 
 // /**
 //  * Get shift by email
@@ -126,3 +127,19 @@ export const deleteShiftById = async (shiftId: mongoose.Types.ObjectId): Promise
   await shift.deleteOne();
   return shift;
 };
+
+
+export const getWeekShifts = async (day: Date, user: mongoose.Types.ObjectId) => {
+ 
+  const dayDate  = dayjs(day).toDate()
+  const weekStart = dayjs(dayDate).startOf('week').toDate()
+  const weekEnd = dayjs(dayDate).endOf('week').toDate()
+  const shifts = await Shift.find({
+    date: {
+      $gte: weekStart,
+      $lte: weekEnd
+    },
+    user
+  }).populate('court')
+  return shifts
+}

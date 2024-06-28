@@ -71,3 +71,9 @@ export const deleteCourtById = async (courtId: mongoose.Types.ObjectId): Promise
   await court.deleteOne();
   return court;
 };
+
+
+export const getCourtByNumber = async (number: number, user: mongoose.Types.ObjectId): Promise<ICourtDoc | null> => {
+  const court = await Court.findOne({ number, user });
+  return court;
+}

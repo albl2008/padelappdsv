@@ -35,10 +35,17 @@ export const createShiftsMonth = {
     tolerance: Joi.number().required(),
     firstShift: Joi.date().required(),
     operativeDays: Joi.array().required(),
+    courtsQuantity: Joi.number().required(),
   }
   ),
 };
 
+
+export const getWeekShifts = {
+  params: Joi.object().keys({
+    day: Joi.date().required(),
+  }),
+}
 
 export const getShifts = {
   query: Joi.object().keys({

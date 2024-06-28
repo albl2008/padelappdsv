@@ -7,6 +7,7 @@ const createCourtBody: Record<keyof NewCreatedCourt, any> = {
   number: Joi.number().required(),
   surface: Joi.string().required(),
   walls: Joi.string().required().valid('cemento', 'blindex'),
+ 
 //   inUse:Joi.boolean.required()
 };
 
@@ -41,6 +42,7 @@ export const updateCourt = {
         number: Joi.number(),
         surface: Joi.string().valid('cemento', 'sintetico'),
         walls: Joi.string().valid('cemento', 'blindex'),
+        
     })
     .min(1),
 };
