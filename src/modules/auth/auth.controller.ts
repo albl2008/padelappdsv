@@ -69,6 +69,7 @@ export const sendVerificationEmailUser = catchAsync(async (req: Request, res: Re
 
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   console.log(req.query['token'])
+  debugger
   await authService.verifyEmail(req.query['token']);
   res.status(httpStatus.NO_CONTENT).send();
 });

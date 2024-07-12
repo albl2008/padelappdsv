@@ -46,6 +46,16 @@ const shiftSchema = new mongoose.Schema<IShiftDoc, IShiftModel>(
     price: {
       type: Number
     },
+    fixed: {
+      type: Boolean,
+      default: false
+    },
+    addons: [
+      {
+        type: Schema.Types.ObjectId,
+        ref:'Addon'
+      }
+    ],
     user: {
       type: Schema.Types.ObjectId,
       ref:'User'

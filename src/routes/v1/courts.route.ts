@@ -11,6 +11,10 @@ router
   .get(auth('getCourts'), validate(courtValidation.getCourts), courtController.getCourts);
 
 router
+  .route('/create-all/:configId')
+  .post(auth('manageCourts'), validate(courtValidation.createAllCourts), courtController.createAllCourts);
+
+router
   .route('/:courtId')
   .get(auth('getCourts'), validate(courtValidation.getCourt), courtController.getCourt)
   .patch(auth('manageCourts'), validate(courtValidation.updateCourt), courtController.updateCourt)

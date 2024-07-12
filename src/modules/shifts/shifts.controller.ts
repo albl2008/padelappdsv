@@ -44,6 +44,17 @@ export const getShiftsMonth = catchAsync(async(req:Request, res: Response)=> {
 
 })
 
+
+export const getShiftsNextDays = catchAsync(async(req:Request, res: Response)=> {
+  const { today, limit } = req.body
+  const todayDate = dayjs(today).toDate()
+  const limitDate = dayjs(today).add(limit, 'day').toDate()
+
+  const shifts = await shiftService.getShiftsNextDays(todayDate, limitDate, req.user.id)
+  res.send(shifts)
+
+})
+
 export const createShiftsMonth = catchAsync(async (req:Request, res:Response) => {
   try {
     const configData = req.body;
@@ -132,9 +143,43 @@ export const updateShift = catchAsync(async (req: Request, res: Response) => {
 export const bookingShift = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['shiftId'] === 'string') {
     const shiftToAssing = req.body
-    shiftToAssing.status = { id: 1, sta: 'booked' }
-    const shift = await shiftService.updateShiftById(new mongoose.Types.ObjectId(req.params['shiftId']), req.body);
-    res.send(shift);
+    debugger
+    const fixed = req.body.fixed
+    if (fixed) {
+      const start = dayjs(req.body.start).toDate()
+      const day = dayjs(start).day()
+      const firstDayOfMonth = dayjs(req.body.start).startOf('month').toDate();
+      const lastDayOfMonth = dayjs(req.body.start).endOf('month').toDate();
+      const monthlyShifts = await shiftService.getShiftsMonth(firstDayOfMonth, lastDayOfMonth,new mongoose.Types.ObjectId(req.body.court), req.user.id)
+      if (!monthlyShifts) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Shifts not found');
+      }
+      const sameDayShifts = monthlyShifts.filter(shift => {
+        const dayDate = dayjs(shift.date).day()
+        if (dayDate === day) {
+        const startHour = dayjs(shift.start).hour()
+        return startHour === dayjs(start).hour()
+        }
+        return false
+      })
+
+      if (sameDayShifts.length > 0) {
+        for (const shift of sameDayShifts) {
+          shift.status = { id: 1, sta: 'booked' }
+          req.body = {
+            ...shiftToAssing,
+            status: shift.status
+          }
+          await shiftService.updateShiftById(new mongoose.Types.ObjectId(shift.id), req.body);
+        }
+        res.send(sameDayShifts)
+      }
+    } else {
+      shiftToAssing.status = { id: 1, sta: 'booked' }
+      const shift = await shiftService.updateShiftById(new mongoose.Types.ObjectId(req.params['shiftId']), req.body);
+      res.send(shift);
+    }
+    
   }
 });
 
@@ -152,3 +197,5 @@ export const getWeekShifts = catchAsync(async (req: Request, res: Response) => {
   const shifts = await shiftService.getWeekShifts(day,user)
   res.send(shifts)
 })
+
+

@@ -6,6 +6,7 @@ import courtsRoute from './courts.route';
 import shiftsRoute from './shifts.route'
 import config from '../../config/config';
 import configRoute from './config.route';
+import addonsRoute from './addons.route'
 
 const router = express.Router();
 
@@ -35,6 +36,10 @@ const defaultIRoute: IRoute[] = [
     path: '/shifts',
     route: shiftsRoute,
   },
+  {
+    path: '/addons',
+    route: addonsRoute
+  }
 ];
 
 const devIRoute: IRoute[] = [

@@ -15,7 +15,9 @@ router
   .route('/:month/getMonth')
   .get(auth('getShifts'), validate(shiftValidation.getShiftsMonth), shiftController.getShiftsMonth)
 
-
+router
+  .route('/get/next-days')
+  .post(auth('getShifts'), validate(shiftValidation.getShiftsNextDays), shiftController.getShiftsNextDays)
 
 router
     .route('/:month/createShiftsMonth')

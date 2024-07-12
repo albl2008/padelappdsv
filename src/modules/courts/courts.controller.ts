@@ -7,6 +7,7 @@ import pick from '../utils/pick';
 import { IOptions } from '../paginate/paginate';
 import * as courtService from './courts.service';
 import Court from './courts.model';
+import { getConfigById } from '../config/config.service';
 
 export const createCourt = catchAsync(async (req: Request, res: Response) => {
   req.body.user = req.user.id;
@@ -48,4 +49,16 @@ export const deleteCourt = catchAsync(async (req: Request, res: Response) => {
     await courtService.deleteCourtById(new mongoose.Types.ObjectId(req.params['courtId']));
     res.status(httpStatus.NO_CONTENT).send();
   }
+});
+
+export const createAllCourts = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params['configId'] === 'string') {
+    const config = await getConfigById(new mongoose.Types.ObjectId(req.params['configId']));
+    if (!config) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Config not found');
+    }
+    const quantity = config.courtsQuantity
+    await courtService.createAllCourts(quantity, req.user.id);
+  }
+  res.status(httpStatus.NO_CONTENT).send();
 });

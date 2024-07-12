@@ -11,7 +11,8 @@ const createShiftBody: Record<keyof NewCreatedShift, any> = {
   status: Joi.object().keys({
     id:Joi.number().required(),
     sta:Joi.string().required()
-  }).required()
+  }).required(),
+  fixed:Joi.boolean().required(),
 };
 
 export const createShift = {
@@ -22,6 +23,13 @@ export const getShiftsMonth = {
   params: Joi.object().keys({
     month: Joi.date().required(),
   }),
+}
+
+export const getShiftsNextDays = {
+  body: Joi.object().keys({
+    today: Joi.date().required(),
+    limit: Joi.number().required(),
+  })
 }
 
 
@@ -80,7 +88,9 @@ export const updateShift = {
       }),
       court: Joi.string().custom(objectId),
       price: Joi.number(),
-      client: Joi.string()
+      client: Joi.string(),
+      fixed:Joi.boolean(),
+      addons: Joi.array().items(Joi.string().custom(objectId)).allow(null),
       })
     .min(1),
 };

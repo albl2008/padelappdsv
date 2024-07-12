@@ -52,3 +52,9 @@ export const deleteCourt = {
     courtId: Joi.string().custom(objectId),
   }),
 };
+
+export const createAllCourts = {
+  params: Joi.object().keys({
+    configId: Joi.string().custom(objectId),
+  })
+}

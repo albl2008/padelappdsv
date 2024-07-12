@@ -13,6 +13,8 @@ export interface IShift {
   price?:number
   user:ObjectId
   status: {id:number,sta:string};
+  fixed?:boolean
+  addons?:ObjectId[]
 }
 
 export interface IShiftDoc extends IShift, Document {
@@ -25,6 +27,6 @@ export interface IShiftModel extends Model<IShiftDoc> {
 export type UpdateShiftBody = Partial<IShift>;
 
 
-export type NewCreatedShift = Omit<IShift,'court'|'client'|'price' | 'user'>;
+export type NewCreatedShift = Omit<IShift,'court'|'client'|'price' | 'user' | 'addons'>;
 
 

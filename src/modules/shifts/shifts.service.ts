@@ -86,7 +86,7 @@ export const queryShifts = async (filter: Record<string, any>, options: IOptions
  * @param {mongoose.Types.ObjectId} id
  * @returns {Promise<IShiftDoc | null>}
  */
-export const getShiftById = async (id: mongoose.Types.ObjectId): Promise<IShiftDoc | null> => Shift.findById(id).populate('court');
+export const getShiftById = async (id: mongoose.Types.ObjectId): Promise<IShiftDoc | null> => Shift.findById(id).populate('court').populate('addons');
 
 // /**
 //  * Get shift by email
@@ -139,6 +139,32 @@ export const getWeekShifts = async (day: Date, user: mongoose.Types.ObjectId) =>
       $gte: weekStart,
       $lte: weekEnd
     },
+    user
+  }).populate('court')
+  return shifts
+}
+
+
+export const getShiftsNextDays = async (day: Date, limit:Date , user: mongoose.Types.ObjectId): Promise<IShiftDoc[] | null> => {
+
+  const shifts = await Shift.find({
+    date: {
+      $gte: day,
+      $lte: limit
+    },
+    user
+  }).populate('court')
+  return shifts
+}
+
+
+export const getShiftsMonth = async (start: Date, end: Date, courtId: mongoose.Types.ObjectId,  user: mongoose.Types.ObjectId): Promise<IShiftDoc[] | null> => {
+  const shifts = await Shift.find({
+    date: {
+      $gte: start,
+      $lte: end
+    },
+    court: courtId,
     user
   }).populate('court')
   return shifts

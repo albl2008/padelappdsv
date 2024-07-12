@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Court from './courts.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { NewCreatedCourt, UpdateCourtBody, ICourtDoc } from './courts.interfaces';
+import { NewCreatedCourt, UpdateCourtBody, ICourtDoc, ICourt } from './courts.interfaces';
 
 /**
  * Create a court
@@ -76,4 +76,22 @@ export const deleteCourtById = async (courtId: mongoose.Types.ObjectId): Promise
 export const getCourtByNumber = async (number: number, user: mongoose.Types.ObjectId): Promise<ICourtDoc | null> => {
   const court = await Court.findOne({ number, user });
   return court;
+}
+
+
+export const createAllCourts = async (quantity:number, user: mongoose.Types.ObjectId) => {
+  const courtsArray: ICourt[] = []
+
+  for (let i = 0; i < quantity; i++) {
+    courtsArray.push({
+      name: `C ${i + 1}`,
+      number: i + 1,
+      surface: 'completar',
+      walls: 'completar',
+      user: user,
+      inUse: false
+    })
+  }
+
+  await Court.insertMany(courtsArray)
 }
