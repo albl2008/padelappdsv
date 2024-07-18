@@ -8,7 +8,7 @@ export interface ICourt {
   surface: string;
   walls: string;
   inUse: boolean;
-  user: mongoose.Types.ObjectId;
+  club: mongoose.Types.ObjectId;
  
 }
 
@@ -23,6 +23,6 @@ export interface ICourtModel extends Model<ICourtDoc> {
 export type UpdateCourtBody = Partial<ICourt>;
 
 
-export type NewCreatedCourt = Omit<ICourt, 'inUse' | 'user'>;
+export type NewCreatedCourt = Omit<ICourt, 'inUse' >;
 
 

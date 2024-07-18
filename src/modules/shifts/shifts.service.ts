@@ -28,7 +28,7 @@ export const createShiftsMonth = async(shifts:any):Promise<any> => {
  * @param {Date} targetDate - The date to check for shifts
  * @returns {Promise<boolean>}
  */
-export const doShiftsExistForDate = async (targetDate: Date, user:mongoose.Types.ObjectId): Promise<boolean> => {
+export const doShiftsExistForDate = async (targetDate: Date, club:mongoose.Types.ObjectId): Promise<boolean> => {
   const startOfMonth = dayjs(targetDate).startOf('month');
   const endOfMonth = dayjs(targetDate).endOf('month');
   debugger
@@ -39,7 +39,7 @@ export const doShiftsExistForDate = async (targetDate: Date, user:mongoose.Types
         $gte: startOfMonth.toDate(),
         $lte: endOfMonth.toDate(),
       },
-      user
+      club
     });
     return shifts.length > 0; // Return true if shifts exist, false otherwise
   } catch (error) {
@@ -129,7 +129,7 @@ export const deleteShiftById = async (shiftId: mongoose.Types.ObjectId): Promise
 };
 
 
-export const getWeekShifts = async (day: Date, user: mongoose.Types.ObjectId) => {
+export const getWeekShifts = async (day: Date, club: mongoose.Types.ObjectId) => {
  
   const dayDate  = dayjs(day).toDate()
   const weekStart = dayjs(dayDate).startOf('week').toDate()
@@ -139,33 +139,33 @@ export const getWeekShifts = async (day: Date, user: mongoose.Types.ObjectId) =>
       $gte: weekStart,
       $lte: weekEnd
     },
-    user
+    club
   }).populate('court')
   return shifts
 }
 
 
-export const getShiftsNextDays = async (day: Date, limit:Date , user: mongoose.Types.ObjectId): Promise<IShiftDoc[] | null> => {
+export const getShiftsNextDays = async (day: Date, limit:Date , club: mongoose.Types.ObjectId): Promise<IShiftDoc[] | null> => {
 
   const shifts = await Shift.find({
     date: {
       $gte: day,
       $lte: limit
     },
-    user
+    club
   }).populate('court')
   return shifts
 }
 
 
-export const getShiftsMonth = async (start: Date, end: Date, courtId: mongoose.Types.ObjectId,  user: mongoose.Types.ObjectId): Promise<IShiftDoc[] | null> => {
+export const getShiftsMonth = async (start: Date, end: Date, courtId: mongoose.Types.ObjectId,  club: mongoose.Types.ObjectId): Promise<IShiftDoc[] | null> => {
   const shifts = await Shift.find({
     date: {
       $gte: start,
       $lte: end
     },
     court: courtId,
-    user
+    club
   }).populate('court')
   return shifts
 }

@@ -7,6 +7,7 @@ const createCourtBody: Record<keyof NewCreatedCourt, any> = {
   number: Joi.number().required(),
   surface: Joi.string().required(),
   walls: Joi.string().required().valid('cemento', 'blindex'),
+  club: Joi.string().custom(objectId),
  
 //   inUse:Joi.boolean.required()
 };

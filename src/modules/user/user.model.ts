@@ -46,6 +46,15 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       type: Boolean,
       default: false,
     },
+    clubs: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Club',
+      default: [],
+    },
+    activeClub: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Club',
+    },
   },
   {
     timestamps: true,

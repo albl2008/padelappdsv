@@ -7,6 +7,8 @@ import shiftsRoute from './shifts.route'
 import config from '../../config/config';
 import configRoute from './config.route';
 import addonsRoute from './addons.route'
+import clubRoute from './club.route'
+import filesRoute from './upload-file.route'
 
 const router = express.Router();
 
@@ -39,7 +41,16 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/addons',
     route: addonsRoute
+  },
+  {
+    path: '/club',
+    route: clubRoute
+  },
+  {
+    path: '/files',
+    route: filesRoute
   }
+
 ];
 
 const devIRoute: IRoute[] = [

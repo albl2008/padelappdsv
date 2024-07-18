@@ -40,15 +40,20 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
 export const sendResetPasswordEmail = async (to: string, token: string): Promise<void> => {
   const subject = 'Reset password';
   // replace this url with the link to the reset password page of your front-end app
-  const resetPasswordUrl = `${config.clientUrl}#/reset-password/token=${token}`;
+  const resetPasswordUrl = `${config.clientUrl}/appadel/#/reset-password/token=${token}`;
+
+  // Plain text version with clickable link
   const text = `Hi,
-  To reset your password, click on this link: ${resetPasswordUrl}
+  To reset your password, click on this link: <${resetPasswordUrl}>
   If you did not request any password resets, then ignore this email.`;
+
+  // HTML version with clickable link
   const html = `<div style="margin:30px; padding:30px; border:1px solid black; border-radius: 20px 10px;"><h4><strong>Dear user,</strong></h4>
-  <p>To reset your password, click on this link: ${resetPasswordUrl}</p>
+  <p>To reset your password, click on this link: <a href="${resetPasswordUrl}">${resetPasswordUrl}</a></p>
   <p>If you did not request any password resets, please ignore this email.</p>
   <p>Thanks,</p>
   <p><strong>Team</strong></p></div>`;
+
   await sendEmail(to, subject, text, html);
 };
 
@@ -109,13 +114,16 @@ export const sendSuccessfulRegistration = async (to: string, token: string, name
 export const sendVerificationEmailUser = async (to: string, token: string, name: string): Promise<void> => {
   const subject = 'Email Verification';
   // replace this url with the link to the email verification page of your front-end app
-  const verificationEmailUrl = `${config.clientUrl}#/verify-email/user?token=${token}`;
-  const text = `Hi ${name},
-  To verify your email, click on this link: ${verificationEmailUrl}
-  If you did not create an account, then ignore this email.`;
+  const verificationEmailUrl = `${config.clientUrl}/appadel/#/verify-email/user?token=${token}`;
+
+  // Plain text version with clickable link
+  const text = `Hi ${name},\nTo verify your email, click on this link: <${verificationEmailUrl}>\nIf you did not create an account, then ignore this email.`;
+
+  // HTML version with clickable link
   const html = `<div style="margin:30px; padding:30px; border:1px solid black; border-radius: 20px 10px;"><h4><strong>Hi ${name},</strong></h4>
-  <p>To verify your email, click on this link: ${verificationEmailUrl}</p>
+  <p>To verify your email, click on this link: <a href="${verificationEmailUrl}">${verificationEmailUrl}</a></p>
   <p>If you did not create an account, then ignore this email.</p></div>`;
+
   await sendEmail(to, subject, text, html);
 };
 

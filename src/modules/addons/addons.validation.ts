@@ -7,7 +7,7 @@ const createAddonBody: Record<keyof NewCreatedAddon, any> = {
   description: Joi.string().required(),
   unit: Joi.boolean().required(),
   type: Joi.boolean().required(),
-  user: Joi.string().custom(objectId),
+  club: Joi.string().custom(objectId),
 
 //   inUse:Joi.boolean.required()
 };

@@ -8,7 +8,7 @@ import { IOptions } from '../paginate/paginate';
 import * as configService from './config.service';
 
 export const createConfig = catchAsync(async (req: Request, res: Response) => {
-  req.body.user = req.user.id;
+  req.body.club = req.user.activeClub;
   const config = await configService.createConfig(req.body);
   
   res.status(httpStatus.CREATED).send(config);
@@ -17,7 +17,7 @@ export const createConfig = catchAsync(async (req: Request, res: Response) => {
 export const getConfigs = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'role']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
-  filter.user = req.user.id
+  filter.club = req.user.activeClub
   const result = await configService.queryConfigs(filter, options);
   res.send(result);
 });

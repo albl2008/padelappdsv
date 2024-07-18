@@ -9,7 +9,7 @@ export interface IConfig {
   firstShift: Date;
   shiftsPerDay: number;
   operativeDays: number[]
-  user:ObjectId
+  club:ObjectId
   courtsQuantity: number;
 }
 

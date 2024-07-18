@@ -39,6 +39,7 @@ export const updateUser = {
       email: Joi.string().email(),
       password: Joi.string().custom(password),
       name: Joi.string(),
+      activeClub: Joi.string().custom(objectId),
     })
     .min(1),
 };

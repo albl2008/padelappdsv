@@ -21,9 +21,9 @@ const addonSchema = new mongoose.Schema<IAddonDoc, IAddonModel>(
       type: Boolean,
       required: true,
     },
-    user: {
+    club: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Club',
       required: true,
     },
     

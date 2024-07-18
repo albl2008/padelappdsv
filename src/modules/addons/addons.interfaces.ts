@@ -7,7 +7,7 @@ export interface IAddon {
   description: string;
   unit: boolean; // $/un o $/turno
   type: boolean;  // alquiler o venta
-  user: ObjectId;
+  club: ObjectId;
 }
 
 export interface IAddonDoc extends IAddon, Document {

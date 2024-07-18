@@ -73,13 +73,13 @@ export const deleteCourtById = async (courtId: mongoose.Types.ObjectId): Promise
 };
 
 
-export const getCourtByNumber = async (number: number, user: mongoose.Types.ObjectId): Promise<ICourtDoc | null> => {
-  const court = await Court.findOne({ number, user });
+export const getCourtByNumber = async (number: number, club: mongoose.Types.ObjectId): Promise<ICourtDoc | null> => {
+  const court = await Court.findOne({ number, club });
   return court;
 }
 
 
-export const createAllCourts = async (quantity:number, user: mongoose.Types.ObjectId) => {
+export const createAllCourts = async (quantity:number, club: mongoose.Types.ObjectId) => {
   const courtsArray: ICourt[] = []
 
   for (let i = 0; i < quantity; i++) {
@@ -88,7 +88,7 @@ export const createAllCourts = async (quantity:number, user: mongoose.Types.Obje
       number: i + 1,
       surface: 'completar',
       walls: 'completar',
-      user: user,
+      club: club,
       inUse: false
     })
   }
