@@ -9,7 +9,7 @@ const createConfigBody: Record<keyof NewCreatedConfig, any> = {
   firstShift: Joi.date().required(),
   tolerance: Joi.number().required(),
   operativeDays: Joi.array().required(),
-  user: Joi.string().custom(objectId),
+  club: Joi.string().custom(objectId),
   courtsQuantity: Joi.number().required(),
 
 //   inUse:Joi.boolean.required()

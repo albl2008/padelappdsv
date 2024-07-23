@@ -10,7 +10,7 @@ import Court from './courts.model';
 import { getConfigById } from '../config/config.service';
 
 export const createCourt = catchAsync(async (req: Request, res: Response) => {
-  req.body.user = req.user.id;
+  req.body.club = req.user.activeClub;
   const isTaken = await Court.isNumberTaken(req.body.number, req.user.id);
   if (isTaken) {
     throw new Error('Court number is already taken for this user');
@@ -22,7 +22,7 @@ export const createCourt = catchAsync(async (req: Request, res: Response) => {
 export const getCourts = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'role']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
-  filter.user = req.user.id
+  filter.club = req.user.activeClub
   const result = await courtService.queryCourts(filter, options);
   res.send(result);
 });
@@ -58,7 +58,7 @@ export const createAllCourts = catchAsync(async (req: Request, res: Response) =>
       throw new ApiError(httpStatus.NOT_FOUND, 'Config not found');
     }
     const quantity = config.courtsQuantity
-    await courtService.createAllCourts(quantity, req.user.id);
+    await courtService.createAllCourts(quantity, req.user.activeClub);
   }
   res.status(httpStatus.NO_CONTENT).send();
 });

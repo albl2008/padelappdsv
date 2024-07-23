@@ -40,9 +40,9 @@ const configSchema = new mongoose.Schema<IConfigDoc, IConfigModel>(
       type: [Number],
       required:true,
     },
-    user: {
+    club: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Club',
       required: true,
     },
     courtsQuantity: {

@@ -19,7 +19,7 @@ export const getShifts = catchAsync(async (req: Request, res: Response) => {
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   options.limit = 2000
   options.populate = 'court'
-  filter.user = req.user.id
+  filter.club = req.user.activeClub
   const result = await shiftService.queryShifts(filter, options);
   res.send(result);
 });
@@ -36,9 +36,9 @@ export const getShift = catchAsync(async (req: Request, res: Response) => {
 
 export const getShiftsMonth = catchAsync(async(req:Request, res: Response)=> {
   const month = dayjs(req.params['month']).toDate()
-  month.setMonth(month.getMonth()-1)
+  
   debugger
-  const created = await shiftService.doShiftsExistForDate(month,req.user.id)
+  const created = await shiftService.doShiftsExistForDate(month,req.user.activeClub)
 
   res.send(created)
 
@@ -50,7 +50,7 @@ export const getShiftsNextDays = catchAsync(async(req:Request, res: Response)=> 
   const todayDate = dayjs(today).toDate()
   const limitDate = dayjs(today).add(limit, 'day').toDate()
 
-  const shifts = await shiftService.getShiftsNextDays(todayDate, limitDate, req.user.id)
+  const shifts = await shiftService.getShiftsNextDays(todayDate, limitDate, req.user.activeClub)
   res.send(shifts)
 
 })
@@ -58,18 +58,18 @@ export const getShiftsNextDays = catchAsync(async(req:Request, res: Response)=> 
 export const createShiftsMonth = catchAsync(async (req:Request, res:Response) => {
   try {
     const configData = req.body;
-    const user = req.user.id
+    const club = req.user.activeClub
     const month = dayjs(req.params['month']).toDate()
-    month.setMonth(month.getMonth()-1)
+    
 
-    const created = await shiftService.doShiftsExistForDate(month,req.user.id)
+    const created = await shiftService.doShiftsExistForDate(month,req.user.activeClub)
     if (created) {
       await shiftService.deleteShiftsForDate(month)
     }
     debugger
     // Generate shifts based on configData
     if (month){
-        const shifts = await generateShifts(month,configData,user);
+        const shifts = await generateShifts(month,configData,club);
         debugger
         await shiftService.createShiftsMonth(shifts);
         res.status(200).json({ message: 'Shifts created successfully' });
@@ -84,7 +84,7 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
 });
 
 
-const generateShifts = async (month: Date, configData: any, user: mongoose.Types.ObjectId) => {
+const generateShifts = async (month: Date, configData: any, club: mongoose.Types.ObjectId) => {
   const { shiftDuration, shiftsPerDay, firstShift, tolerance, operativeDays, courtsQuantity } = configData;
   const shifts = [];
 
@@ -100,7 +100,7 @@ const generateShifts = async (month: Date, configData: any, user: mongoose.Types
     }
     for (let j = 0; j < shiftsPerDay; j++) {
       for (let k = 0; k < courtsQuantity; k++) {
-        const court = await courtService.getCourtByNumber(k + 1, user);
+        const court = await courtService.getCourtByNumber(k + 1, club);
         if (!court) {
           throw new ApiError(httpStatus.NOT_FOUND, 'Court not found');
         }
@@ -124,7 +124,7 @@ const generateShifts = async (month: Date, configData: any, user: mongoose.Types
           end: endDate.toDate(),
           tolerance: tolerance,
           status: { id: 0, sta: 'available' },
-          user: user,
+          club: club,
           court: court.id,
         });
       }
@@ -150,7 +150,7 @@ export const bookingShift = catchAsync(async (req: Request, res: Response) => {
       const day = dayjs(start).day()
       const firstDayOfMonth = dayjs(req.body.start).startOf('month').toDate();
       const lastDayOfMonth = dayjs(req.body.start).endOf('month').toDate();
-      const monthlyShifts = await shiftService.getShiftsMonth(firstDayOfMonth, lastDayOfMonth,new mongoose.Types.ObjectId(req.body.court), req.user.id)
+      const monthlyShifts = await shiftService.getShiftsMonth(firstDayOfMonth, lastDayOfMonth,new mongoose.Types.ObjectId(req.body.court), req.user.activeClub)
       if (!monthlyShifts) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Shifts not found');
       }
@@ -191,10 +191,10 @@ export const deleteShift = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getWeekShifts = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user.id
+  const club = req.user.activeClub
   const day = dayjs(req.params['day']).toDate()
 
-  const shifts = await shiftService.getWeekShifts(day,user)
+  const shifts = await shiftService.getWeekShifts(day,club)
   res.send(shifts)
 })
 

@@ -56,9 +56,9 @@ const shiftSchema = new mongoose.Schema<IShiftDoc, IShiftModel>(
         ref:'Addon'
       }
     ],
-    user: {
+    club: {
       type: Schema.Types.ObjectId,
-      ref:'User'
+      ref:'Club'
     }
   },
   {

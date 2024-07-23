@@ -12,6 +12,7 @@ import { jwtStrategy } from './modules/auth';
 import { authLimiter } from './modules/utils';
 import { ApiError, errorConverter, errorHandler } from './modules/errors';
 import routes from './routes/v1';
+import path from 'path';
 
 const app: Express = express();
 
@@ -43,6 +44,9 @@ app.use(compression());
 // jwt authentication
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
+
+// files
+app.use('/uploads', express.static(path.resolve('uploads')));
 
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {

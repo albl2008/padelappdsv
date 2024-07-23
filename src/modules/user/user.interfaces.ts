@@ -8,6 +8,8 @@ export interface IUser {
   password: string;
   role: string;
   isEmailVerified: boolean;
+  clubs: mongoose.Types.ObjectId[];
+  activeClub: mongoose.Types.ObjectId;
 }
 
 export interface IUserDoc extends IUser, Document {
@@ -21,11 +23,12 @@ export interface IUserModel extends Model<IUserDoc> {
 
 export type UpdateUserBody = Partial<IUser>;
 
-export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified'>;
+export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified' | 'location' | 'clubs' | 'activeClub'>;
 
-export type NewCreatedUserGoogle = Omit<IUser, 'isEmailVerified' | 'password' | 'role' >;
 
-export type NewCreatedUser = Omit<IUser, 'isEmailVerified'  >;
+export type NewCreatedUserGoogle = Omit<IUser, 'isEmailVerified' | 'password' | 'role' | 'clubs' | 'activeClub' | 'location'>;
+
+export type NewCreatedUser = Omit<IUser, 'isEmailVerified' | 'location' | 'clubs' | 'activeClub'>;
 
 export interface IUserWithTokens {
   user: IUserDoc;

@@ -16,3 +16,7 @@ dist
 
 # docker volume
 data
+
+#uploads
+
+/uploads

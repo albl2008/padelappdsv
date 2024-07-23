@@ -29,9 +29,9 @@ const courtSchema = new mongoose.Schema<ICourtDoc, ICourtModel>(
       type: Boolean,
       default: false,
     },
-    user: {
+    club: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Club',
       required: true,
     },
     

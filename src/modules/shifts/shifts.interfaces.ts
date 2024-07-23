@@ -11,7 +11,7 @@ export interface IShift {
   tolerance: number
   court?:ObjectId
   price?:number
-  user:ObjectId
+  club:ObjectId
   status: {id:number,sta:string};
   fixed?:boolean
   addons?:ObjectId[]

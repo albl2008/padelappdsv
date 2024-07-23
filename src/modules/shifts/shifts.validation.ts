@@ -13,6 +13,7 @@ const createShiftBody: Record<keyof NewCreatedShift, any> = {
     sta:Joi.string().required()
   }).required(),
   fixed:Joi.boolean().required(),
+  club: Joi.string().custom(objectId),
 };
 
 export const createShift = {
