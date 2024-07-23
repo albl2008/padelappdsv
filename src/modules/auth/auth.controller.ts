@@ -6,6 +6,8 @@ import { userService } from '../user';
 import * as authService from './auth.service';
 import { emailService } from '../email';
 import { ApiError } from '../errors';
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client("532183264031-tb7fe422986o783aa72qvvjocgjeu0fp.apps.googleusercontent.com");
 
 export const register = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.registerUser(req.body);
@@ -72,4 +74,33 @@ export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   debugger
   await authService.verifyEmail(req.query['token']);
   res.status(httpStatus.NO_CONTENT).send();
+});
+
+export const google = catchAsync(async (req: Request, res: Response) => {
+  const googleToken = req.body.token;
+
+  const ticket = await client.verifyIdToken({
+    idToken: googleToken,
+    audience: "532183264031-tb7fe422986o783aa72qvvjocgjeu0fp.apps.googleusercontent.com"
+  });
+
+  const payload = ticket.getPayload();
+
+  // now verify if user exists
+  if(payload && payload.email && payload.name){
+    const user = await userService.getUserByEmail(payload.email);
+    if (!user) {
+      const newUser = await userService.createUserGoogle({
+        name: payload.name,
+        email: payload.email,
+      });
+      const tokens = await tokenService.generateAuthTokens(newUser);
+       res.send({ user: newUser, tokens });
+    }else{
+      const tokens = await tokenService.generateAuthTokens(user);
+      res.send({ user, tokens });
+    }
+  }else{
+    throw new ApiError(httpStatus.NOT_FOUND, 'Ocurrio un error al iniciar sesion');
+  }
 });

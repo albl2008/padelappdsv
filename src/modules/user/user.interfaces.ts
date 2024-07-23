@@ -23,7 +23,9 @@ export type UpdateUserBody = Partial<IUser>;
 
 export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified'>;
 
-export type NewCreatedUser = Omit<IUser, 'isEmailVerified'>;
+export type NewCreatedUserGoogle = Omit<IUser, 'isEmailVerified' | 'password' | 'role' >;
+
+export type NewCreatedUser = Omit<IUser, 'isEmailVerified'  >;
 
 export interface IUserWithTokens {
   user: IUserDoc;

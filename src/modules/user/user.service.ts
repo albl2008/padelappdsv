@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import User from './user.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { NewCreatedUser, UpdateUserBody, IUserDoc, NewRegisteredUser } from './user.interfaces';
+import { NewCreatedUser, UpdateUserBody, IUserDoc, NewRegisteredUser, NewCreatedUserGoogle } from './user.interfaces';
 
 /**
  * Create a user
@@ -14,6 +14,11 @@ export const createUser = async (userBody: NewCreatedUser): Promise<IUserDoc> =>
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
+  return User.create(userBody);
+};
+
+export const createUserGoogle = async (userBody: NewCreatedUserGoogle): Promise<IUserDoc> => {
+
   return User.create(userBody);
 };
 

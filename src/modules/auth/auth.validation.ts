@@ -51,3 +51,10 @@ export const verifyEmail = {
     token: Joi.string().required(),
   }),
 };
+
+
+export const google = {
+  body: Joi.object().keys({
+    token: Joi.string().required(),
+  }),
+}
