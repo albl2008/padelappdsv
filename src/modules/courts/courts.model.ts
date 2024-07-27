@@ -41,16 +41,18 @@ const courtSchema = new mongoose.Schema<ICourtDoc, ICourtModel>(
   }
 );
 
-courtSchema.index({ number: 1, user: 1 }, { unique: true });
+
+courtSchema.index({ number: 1, club: 1 }, { unique: true });
 
 
 // add plugin that converts mongoose to json
 courtSchema.plugin(toJSON);
 courtSchema.plugin(paginate);
 
-courtSchema.static('isNumberTaken', async function (number: number, userId: mongoose.ObjectId): Promise<boolean> {
-  console.log(number,userId)
-  const court = await this.findOne({ number, user: userId });
+courtSchema.static('isNumberTaken', async function (number: number, clubId: mongoose.ObjectId): Promise<boolean> {
+  console.log(number,clubId)
+  debugger
+  const court = await this.findOne({ number, club: clubId });
   return !!court;
 });
 

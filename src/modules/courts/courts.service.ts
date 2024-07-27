@@ -11,6 +11,7 @@ import { NewCreatedCourt, UpdateCourtBody, ICourtDoc, ICourt } from './courts.in
  * @returns {Promise<ICourtDoc>}
  */
 export const createCourt = async (courtBody: NewCreatedCourt): Promise<ICourtDoc> => {
+  debugger
   return Court.create(courtBody);
 };
 
@@ -94,4 +95,11 @@ export const createAllCourts = async (quantity:number, club: mongoose.Types.Obje
   }
 
   await Court.insertMany(courtsArray)
+}
+
+export const deleteAllCourts = async (club: mongoose.Types.ObjectId) => {
+  return await Court.deleteMany({
+    club
+  })
+  
 }

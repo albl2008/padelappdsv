@@ -16,6 +16,10 @@ router
   .get(auth('getShifts'), validate(shiftValidation.getShiftsMonth), shiftController.getShiftsMonth)
 
 router
+  .route('court/:courtId')
+  .get(auth('getShifts'), validate(shiftValidation.getShiftsByCourt), shiftController.getShiftsByCourt)
+
+router
   .route('/get/next-days')
   .post(auth('getShifts'), validate(shiftValidation.getShiftsNextDays), shiftController.getShiftsNextDays)
 
