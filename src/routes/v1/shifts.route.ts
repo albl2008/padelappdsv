@@ -16,7 +16,7 @@ router
   .get(auth('getShifts'), validate(shiftValidation.getShiftsMonth), shiftController.getShiftsMonth)
 
 router
-  .route('court/:courtId')
+  .route('/court/:courtId')
   .get(auth('getShifts'), validate(shiftValidation.getShiftsByCourt), shiftController.getShiftsByCourt)
 
 router

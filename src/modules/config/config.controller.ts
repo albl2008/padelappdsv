@@ -36,6 +36,10 @@ export const getConfig = catchAsync(async (req: Request, res: Response) => {
 
 export const updateConfig = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['configId'] === 'string') {
+    const existsShifts = await shiftService.existsShifts(req.user.activeClub);
+    if (existsShifts){
+      await shiftService.deleteAllShifts(req.user.activeClub)
+    }
     const config = await configService.updateConfigById(new mongoose.Types.ObjectId(req.params['configId']), req.body);
     res.send(config);
   }

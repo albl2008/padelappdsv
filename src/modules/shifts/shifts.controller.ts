@@ -163,7 +163,8 @@ export const bookingShift = catchAsync(async (req: Request, res: Response) => {
         const dayDate = dayjs(shift.date).day()
         if (dayDate === day) {
         const startHour = dayjs(shift.start).hour()
-        return startHour === dayjs(start).hour()
+        const startMin = dayjs(shift.start).minute()
+        return startHour === dayjs(start).hour() && startMin === dayjs(start).minute()
         }
         return false
       })
