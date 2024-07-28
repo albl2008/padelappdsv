@@ -169,3 +169,41 @@ export const getShiftsMonth = async (start: Date, end: Date, courtId: mongoose.T
   }).populate('court')
   return shifts
 }
+
+export const shiftsByCourt = async (courtId: mongoose.Types.ObjectId, club: mongoose.Types.ObjectId): Promise<boolean> => {
+
+  const shifts = await Shift.find({
+    court: courtId,
+    club
+  })
+  if (shifts && shifts.length > 0) {
+    return true
+  }
+  return false
+}
+
+export const deleteShiftsByCourt = async (courtId: mongoose.Types.ObjectId, club: mongoose.Types.ObjectId): Promise<any> => {
+  return await Shift.deleteMany({
+    court: courtId,
+    club
+  })
+  
+}
+
+export const existsShifts = async (club: mongoose.Types.ObjectId): Promise<boolean> => {
+
+  const shifts = await Shift.find({
+    club
+  })
+  if (shifts && shifts.length > 0) {
+    return true
+  }
+  return false
+}
+
+export const deleteAllShifts = async (club: mongoose.Types.ObjectId): Promise<any> => {
+  return await Shift.deleteMany({
+    club
+  })
+  
+}

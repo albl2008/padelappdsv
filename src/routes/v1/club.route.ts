@@ -16,4 +16,8 @@ router
   .patch(auth('manageClub'), validate(clubValidation.updateClub), clubController.updateClub)
   .delete(auth('manageClub'), validate(clubValidation.deleteClub), clubController.deleteClub);
 
+router
+  .route('/club/active')
+  .get(auth('getClub'), clubController.getActiveClub);
+
 export default router;

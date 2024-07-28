@@ -16,7 +16,7 @@ export interface ICourtDoc extends ICourt, Document {
 }
 
 export interface ICourtModel extends Model<ICourtDoc> {
-  isNumberTaken(number: number, userId: ObjectId): Promise<boolean>;
+  isNumberTaken(number: number, clubId: ObjectId): Promise<boolean>;
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>;
 }
 

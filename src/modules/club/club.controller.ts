@@ -38,6 +38,17 @@ async function updateUserClubs (clubId: string, userId: string) {
   }
 }
 
+export const getActiveClub = catchAsync(async (req: Request, res: Response) => {
+  const user = await userService.getUserById(new mongoose.Types.ObjectId(req.user.id));
+  if (user && user.clubs) {
+    const club = await clubService.getClubById(new mongoose.Types.ObjectId(user.activeClub));
+    res.send(club);
+  } else {
+    res.send(null);
+  }
+});
+
+
 export const getClubs = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'role']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);

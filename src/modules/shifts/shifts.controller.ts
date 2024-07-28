@@ -83,6 +83,14 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
   }
 });
 
+export const getShiftsByCourt = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params['courtId'] === 'string') {
+    const activeClub = req.user.activeClub
+    const shifts = await shiftService.shiftsByCourt(new mongoose.Types.ObjectId(req.params['courtId']), activeClub);
+    res.send(shifts);
+  }
+});
+
 
 const generateShifts = async (month: Date, configData: any, club: mongoose.Types.ObjectId) => {
   const { shiftDuration, shiftsPerDay, firstShift, tolerance, operativeDays, courtsQuantity } = configData;

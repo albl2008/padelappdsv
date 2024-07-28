@@ -73,6 +73,12 @@ export const getShift = {
   }),
 };
 
+export const getShiftsByCourt = {
+  params: Joi.object().keys({
+    courtId: Joi.string().custom(objectId),
+  }),
+};
+
 export const updateShift = {
   params: Joi.object().keys({
     shiftId: Joi.required().custom(objectId),
@@ -89,7 +95,7 @@ export const updateShift = {
       }),
       court: Joi.string().custom(objectId),
       price: Joi.number(),
-      client: Joi.string(),
+      client: Joi.string().allow(null),
       fixed:Joi.boolean(),
       addons: Joi.array().items(Joi.string().custom(objectId)).allow(null),
       })
