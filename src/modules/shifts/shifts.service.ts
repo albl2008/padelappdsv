@@ -130,7 +130,7 @@ export const deleteShiftById = async (shiftId: mongoose.Types.ObjectId): Promise
 
 
 export const getWeekShifts = async (day: Date, club: mongoose.Types.ObjectId) => {
- 
+
   const dayDate  = dayjs(day).toDate()
   const weekStart = dayjs(dayDate).startOf('week').toDate()
   const weekEnd = dayjs(dayDate).endOf('week').toDate()
@@ -187,7 +187,7 @@ export const deleteShiftsByCourt = async (courtId: mongoose.Types.ObjectId, club
     court: courtId,
     club
   })
-  
+
 }
 
 export const existsShifts = async (club: mongoose.Types.ObjectId): Promise<boolean> => {
@@ -205,5 +205,83 @@ export const deleteAllShifts = async (club: mongoose.Types.ObjectId): Promise<an
   return await Shift.deleteMany({
     club
   })
-  
+
+}
+
+
+//querys for players
+export const getShiftForPlayer = async (): Promise<IShiftDoc[] | null> => {
+  debugger
+  const today =  dayjs().subtract(3, 'hours').toDate();
+  const nextWeek = new Date(today);
+  nextWeek.setDate(today.getDate() + 7);
+  const page = 1; // Current page number
+  const limit = 10; // Number of clubs per page
+  const aggregationPipeline :any = [
+    {
+      $group: {
+        _id: "$club",
+        shifts: { $push: "$$ROOT" }
+      }
+    },
+    {
+      $sort: { _id: 1 } // Replace _id with the field by which you want to sort clubs
+    },
+    {
+      $skip: (page - 1) * limit
+    },
+    {
+      $limit: limit
+    },
+    {
+      $unwind: "$shifts"
+    },
+    {
+      $match: {
+        "shifts.start": { $gte: today, $lte: today }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          club: "$_id",
+          court: "$shifts.court"
+        },
+        shifts: {
+          $push: {
+            duration: "$shifts.duration",
+            date: "$shifts.date",
+            start: "$shifts.start",
+            end: "$shifts.end",
+            tolerance: "$shifts.tolerance",
+            status: "$shifts.status",
+            client: "$shifts.client",
+            price: "$shifts.price",
+            fixed: "$shifts.fixed",
+            addons: "$shifts.addons"
+          }
+        }
+      }
+    },
+    {
+      $group: {
+        _id: "$_id.club",
+        courts: {
+          $push: {
+            court: "$_id.court",
+            shifts: "$shifts"
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        club: "$_id",
+        courts: 1
+      }
+    }
+  ];
+
+  return Shift.aggregate(aggregationPipeline,{})
 }

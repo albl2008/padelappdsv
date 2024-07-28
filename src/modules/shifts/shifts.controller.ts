@@ -36,7 +36,7 @@ export const getShift = catchAsync(async (req: Request, res: Response) => {
 
 export const getShiftsMonth = catchAsync(async(req:Request, res: Response)=> {
   const month = dayjs(req.params['month']).toDate()
-  
+
   debugger
   const created = await shiftService.doShiftsExistForDate(month,req.user.activeClub)
 
@@ -60,7 +60,7 @@ export const createShiftsMonth = catchAsync(async (req:Request, res:Response) =>
     const configData = req.body;
     const club = req.user.activeClub
     const month = dayjs(req.params['month']).toDate()
-    
+
 
     const created = await shiftService.doShiftsExistForDate(month,req.user.activeClub)
     if (created) {
@@ -90,8 +90,6 @@ export const getShiftsByCourt = catchAsync(async (req: Request, res: Response) =
     res.send(shifts);
   }
 });
-
-
 const generateShifts = async (month: Date, configData: any, club: mongoose.Types.ObjectId) => {
   const { shiftDuration, shiftsPerDay, firstShift, tolerance, operativeDays, courtsQuantity } = configData;
   const shifts = [];
@@ -147,7 +145,6 @@ export const updateShift = catchAsync(async (req: Request, res: Response) => {
     res.send(shift);
   }
 });
-
 export const bookingShift = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['shiftId'] === 'string') {
     const shiftToAssing = req.body
@@ -187,17 +184,15 @@ export const bookingShift = catchAsync(async (req: Request, res: Response) => {
       const shift = await shiftService.updateShiftById(new mongoose.Types.ObjectId(req.params['shiftId']), req.body);
       res.send(shift);
     }
-    
+
   }
 });
-
 export const deleteShift = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['shiftId'] === 'string') {
     await shiftService.deleteShiftById(new mongoose.Types.ObjectId(req.params['shiftId']));
     res.status(httpStatus.NO_CONTENT).send();
   }
 });
-
 export const getWeekShifts = catchAsync(async (req: Request, res: Response) => {
   const club = req.user.activeClub
   const day = dayjs(req.params['day']).toDate()
@@ -205,5 +200,19 @@ export const getWeekShifts = catchAsync(async (req: Request, res: Response) => {
   const shifts = await shiftService.getWeekShifts(day,club)
   res.send(shifts)
 })
+
+
+//get shift for players
+
+export const getShiftPlayers = catchAsync(async (req: Request, res: Response) => {
+  // const filter = pick(req.query, ['name', 'role']);
+  // const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
+  req
+  const result = await shiftService.getShiftForPlayer();
+  res.send(result);
+});
+
+
+
 
 

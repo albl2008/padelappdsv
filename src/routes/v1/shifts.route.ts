@@ -31,7 +31,7 @@ router
     .route('/booking/:shiftId')
     .patch(auth('manageShifts'), validate(shiftValidation.updateShift), shiftController.bookingShift)
 
-router 
+router
   .route('/week/:day')
   .get(auth('getShifts'), validate(shiftValidation.getWeekShifts), shiftController.getWeekShifts)
 
@@ -42,4 +42,7 @@ router
   .patch(auth('manageShifts'), validate(shiftValidation.updateShift), shiftController.updateShift)
   .delete(auth('manageShifts'), validate(shiftValidation.deleteShift), shiftController.deleteShift);
 
+router
+  .route('/players/shift')
+  .get(auth('getShifts'), shiftController.getShiftPlayers)
 export default router;
