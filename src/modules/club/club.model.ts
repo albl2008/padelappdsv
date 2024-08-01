@@ -5,19 +5,16 @@ import { IClubDoc, IClubModel } from './club.interfaces';
 
 const clubSchema = new mongoose.Schema<IClubDoc, IClubModel>(
   {
-   
+
     name: {
       type: String,
       required: true,
       trim: true,
     },
     location: {
-      lat: {
-        type: Number,
-        required: true,
-      },
-      lng: {
-        type: Number,
+      type: { type: String, default: 'Point' },
+      coordinates: {
+        type: [Number],
         required: true,
       },
     },
@@ -47,6 +44,10 @@ const clubSchema = new mongoose.Schema<IClubDoc, IClubModel>(
     timestamps: true,
   }
 );
+
+
+
+clubSchema.index({ location: '2dsphere' });
 
 // add plugin that converts mongoose to json
 clubSchema.plugin(toJSON);

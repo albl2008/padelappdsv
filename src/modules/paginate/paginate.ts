@@ -15,6 +15,8 @@ export interface IOptions {
   populate?: string;
   limit?: number;
   page?: number;
+  lat?: number;
+  lng?: number;
 }
 
 const paginate = <T extends Document, U extends Model<U>>(schema: Schema<T>): void => {

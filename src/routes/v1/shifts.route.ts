@@ -43,6 +43,6 @@ router
   .delete(auth('manageShifts'), validate(shiftValidation.deleteShift), shiftController.deleteShift);
 
 router
-  .route('/players/shift')
-  .get(auth('getShifts'), shiftController.getShiftPlayers)
+  .route('/players/shift/:date')
+  .post(auth('getShifts'), shiftController.getShiftPlayers)
 export default router;

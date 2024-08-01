@@ -5,6 +5,9 @@ import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
 import { NewCreatedShift, UpdateShiftBody, IShiftDoc } from './shifts.interfaces';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import Club from '../club/club.model';
+dayjs.extend(utc);
 
 /**
  * Create a shift
@@ -210,12 +213,14 @@ export const deleteAllShifts = async (club: mongoose.Types.ObjectId): Promise<an
 
 
 //querys for players
-export const getShiftForPlayer = async (): Promise<IShiftDoc[] | null> => {
+export const getShiftForPlayer = async (date:string,options:IOptions): Promise<any[] | null> => {
   debugger
-  const today =  dayjs().subtract(3, 'hours').toDate();
-  const nextWeek = new Date(today);
-  nextWeek.setDate(today.getDate() + 7);
-  const page = 1; // Current page number
+  let now =  dayjs().subtract(3, 'hours').toDate();
+  if(date != "00"){
+     now =  dayjs(date).subtract(3, 'hours').toDate();
+  }
+  const endDay = dayjs().endOf('day').toDate();
+  const page = options.page ? options.page : 1; // Current page number
   const limit = 10; // Number of clubs per page
   const aggregationPipeline :any = [
     {
@@ -225,7 +230,7 @@ export const getShiftForPlayer = async (): Promise<IShiftDoc[] | null> => {
       }
     },
     {
-      $sort: { _id: 1 } // Replace _id with the field by which you want to sort clubs
+      $sort: { _id: 1 }
     },
     {
       $skip: (page - 1) * limit
@@ -238,7 +243,7 @@ export const getShiftForPlayer = async (): Promise<IShiftDoc[] | null> => {
     },
     {
       $match: {
-        "shifts.start": { $gte: today, $lte: today }
+        "shifts.start": { $gte: now, $lte: endDay }
       }
     },
     {
@@ -258,7 +263,8 @@ export const getShiftForPlayer = async (): Promise<IShiftDoc[] | null> => {
             client: "$shifts.client",
             price: "$shifts.price",
             fixed: "$shifts.fixed",
-            addons: "$shifts.addons"
+            addons: "$shifts.addons",
+            court: "$shifts.court"
           }
         }
       }
@@ -275,13 +281,128 @@ export const getShiftForPlayer = async (): Promise<IShiftDoc[] | null> => {
       }
     },
     {
+      $lookup: {
+        from: "clubs", // The name of the collection containing club details
+        localField: "_id", // Field from the previous stage to match with `foreignField`
+        foreignField: "_id", // Field in the clubs collection to match with `localField`
+        as: "clubDetails"
+      }
+    },
+    {
+      $unwind: "$clubDetails"
+    },
+    {
       $project: {
         _id: 0,
-        club: "$_id",
+        club: {
+          id: "$_id",
+          name: "$clubDetails.name",
+          logo: "$clubDetails.logo"
+        },
         courts: 1
       }
     }
   ];
 
   return Shift.aggregate(aggregationPipeline,{})
+}
+
+export const getShiftForPlayerAndDistance = async (date:string,options:IOptions,userLocation:{lat:number,lng:number}): Promise<any[] | null> => {
+  let now = dayjs().subtract(3, 'hours').toDate();
+  if (date != "00") {
+    now = dayjs(date).subtract(3, 'hours').toDate();
+  }
+  const endDay = dayjs(now).endOf('day').toDate();
+  const page = options.page ? options.page : 1; // Current page number
+  const limit = 1; // Number of clubs per page
+  const aggregationPipeline:any = [
+    {
+      $geoNear: {
+        near: { type: "Point", coordinates: [userLocation.lng, userLocation.lat] },
+        distanceField: "distance",
+        spherical: true
+      }
+    },
+    {
+      $lookup: {
+        from: "shifts",
+        localField: "_id",
+        foreignField: "club",
+        as: "shifts"
+      }
+    },
+    {
+      $unwind: "$shifts"
+    },
+    {
+      $match: {
+        "shifts.start": { $gte: now, $lte: endDay }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          club: "$_id",
+          court: "$shifts.court"
+        },
+        shifts: {
+          $push: {
+            duration: "$shifts.duration",
+            date: "$shifts.date",
+            start: "$shifts.start",
+            end: "$shifts.end",
+            tolerance: "$shifts.tolerance",
+            status: "$shifts.status",
+            client: "$shifts.client",
+            price: "$shifts.price",
+            fixed: "$shifts.fixed",
+            addons: "$shifts.addons",
+            court: "$shifts.court"
+          }
+        },
+        name: { $first: "$name" },
+        logo: { $first: "$logo" },
+        distance: { $first: "$distance" }
+      }
+    },
+    {
+      $group: {
+        _id: "$_id.club",
+        courts: {
+          $push: {
+            court: "$_id.court",
+            shifts: "$shifts"
+          }
+        },
+        name: { $first: "$name" },
+        logo: { $first: "$logo" },
+        distance: { $first: "$distance" }
+      }
+    },
+    {
+      $sort: { "distance": 1 }  // Sorting by distance
+    },
+    {
+      $skip: (page - 1) * limit  // Ensure page is 1-based
+    },
+    {
+      $limit: limit
+    },
+    {
+      $project: {
+        _id: 0,
+        club: {
+          id: "$_id",
+          name: "$name",
+          logo: "$logo",
+          distance: "$distance"
+        },
+        courts: 1
+      }
+    }
+  ];
+
+
+
+  return Club.aggregate(aggregationPipeline).exec();
 }

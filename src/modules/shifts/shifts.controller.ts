@@ -207,10 +207,34 @@ export const getWeekShifts = catchAsync(async (req: Request, res: Response) => {
 
 export const getShiftPlayers = catchAsync(async (req: Request, res: Response) => {
   // const filter = pick(req.query, ['name', 'role']);
-  // const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
-  req
-  const result = await shiftService.getShiftForPlayer();
-  res.send(result);
+  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
+  if (typeof req.params['date'] === 'string') {
+    const userLocation= req.body.userLocation
+    let result = await shiftService.getShiftForPlayerAndDistance(req.params['date'], options,userLocation);
+    // Flatten and remove duplicates
+
+    if(!result) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Shifts not found');
+    }
+    debugger
+    result.forEach(club => {
+      const uniqueShifts : any[] = [];
+      const seenStarts = new Set();
+        club.club.distance = (club.club.distance / 1000).toFixed(1)
+        club.courts.forEach((court :any) => {
+            court.shifts.forEach((shift :any) => {
+              shift.start = new Date(shift.start)
+              if (!seenStarts.has(shift.start)) {
+                  seenStarts.add(shift.start);
+                  uniqueShifts.push(shift);
+              }
+            });
+            club.resumedShifts = uniqueShifts
+        });
+    });
+
+    res.send(result);
+  }
 });
 
 

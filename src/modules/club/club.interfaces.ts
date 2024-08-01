@@ -1,10 +1,13 @@
 import mongoose, { Model, Document } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 
-
+interface ILocation {
+  type: 'Point';
+  coordinates: [number, number]; // [longitude, latitude]
+}
 export interface IClub {
   name: string;
-  location: {lat: number, lng: number}
+  location: ILocation
   address: string
   logo: string;
   phone: number
