@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Shift from './shifts.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { NewCreatedShift, UpdateShiftBody, IShiftDoc } from './shifts.interfaces';
+import { NewCreatedShift, UpdateShiftBody, IShiftDoc, filter } from './shifts.interfaces';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import Club from '../club/club.model';
@@ -307,100 +307,164 @@ export const getShiftForPlayer = async (date:string,options:IOptions): Promise<a
   return Shift.aggregate(aggregationPipeline,{})
 }
 
-export const getShiftForPlayerAndDistance = async (date:string,options:IOptions,userLocation:{lat:number,lng:number}): Promise<any[] | null> => {
-  let now = dayjs().subtract(3, 'hours').toDate();
+export const getShiftForPlayerAndDistance = async (date:string,options:IOptions,userLocation:{lat:number,lng:number},search:string,filterObject:filter): Promise<any[] | null> => {
+  debugger
+  const newLocal = dayjs().subtract(3, 'hours').toDate();
+  let now = newLocal;
   if (date != "00") {
     now = dayjs(date).subtract(3, 'hours').toDate();
   }
   const endDay = dayjs(now).endOf('day').toDate();
   const page = options.page ? options.page : 1; // Current page number
-  const limit = 1; // Number of clubs per page
-  const aggregationPipeline:any = [
-    {
-      $geoNear: {
-        near: { type: "Point", coordinates: [userLocation.lng, userLocation.lat] },
-        distanceField: "distance",
-        spherical: true
-      }
-    },
-    {
-      $lookup: {
-        from: "shifts",
-        localField: "_id",
-        foreignField: "club",
-        as: "shifts"
-      }
-    },
-    {
-      $unwind: "$shifts"
-    },
-    {
-      $match: {
-        "shifts.start": { $gte: now, $lte: endDay }
-      }
-    },
-    {
-      $group: {
-        _id: {
-          club: "$_id",
-          court: "$shifts.court"
-        },
-        shifts: {
-          $push: {
-            duration: "$shifts.duration",
-            date: "$shifts.date",
-            start: "$shifts.start",
-            end: "$shifts.end",
-            tolerance: "$shifts.tolerance",
-            status: "$shifts.status",
-            client: "$shifts.client",
-            price: "$shifts.price",
-            fixed: "$shifts.fixed",
-            addons: "$shifts.addons",
-            court: "$shifts.court"
-          }
-        },
-        name: { $first: "$name" },
-        logo: { $first: "$logo" },
-        distance: { $first: "$distance" }
-      }
-    },
-    {
-      $group: {
-        _id: "$_id.club",
-        courts: {
-          $push: {
-            court: "$_id.court",
-            shifts: "$shifts"
-          }
-        },
-        name: { $first: "$name" },
-        logo: { $first: "$logo" },
-        distance: { $first: "$distance" }
-      }
-    },
-    {
-      $sort: { "distance": 1 }  // Sorting by distance
-    },
-    {
-      $skip: (page - 1) * limit  // Ensure page is 1-based
-    },
-    {
-      $limit: limit
-    },
-    {
-      $project: {
-        _id: 0,
-        club: {
-          id: "$_id",
-          name: "$name",
-          logo: "$logo",
-          distance: "$distance"
-        },
-        courts: 1
-      }
+  const limit = 10; // Number of clubs per page
+
+  const sortField = filterObject.orderByDistance ? "distance" : "config.shiftPrice"; // e.g., "config.shiftPrice" or "distance"
+  const sortOrder = 1 ;// e.g., 1 for ascending, -1 for descending
+  const maxDistance = filterObject.distance  * 1000 || 50000;
+  // Extract selected durations from the duraciones array
+  const selectedDurations = filterObject.duraciones
+    .filter(duration => duration.value)
+    .map(duration => parseFloat(duration.filter)); // Extract the numeric value (e.g., 60, 90, 120)
+    // Extract selected durations from the duraciones array
+  const selectedWalls = filterObject.paredes
+    .filter(wall => wall.value)
+    .map(wall => wall.filter); // Extract the numeric value (e.g., 60, 90, 120)
+  /*
+    Campos a filtrar:
+    shiftDuration
+    courst.walls
+  */
+
+const aggregationPipeline : any = [
+  {
+    $geoNear: {
+      near: { type: "Point", coordinates: [userLocation.lng, userLocation.lat] },
+      distanceField: "distance",
+      spherical: true
     }
-  ];
+  },
+  {
+    $match: {
+      distance: { $lte: maxDistance } // Limit to within maxDistance meters
+    }
+  },
+  ...(search ? [{
+    $match: {
+      name: { $regex: search, $options: 'i' } // 'i' for case-insensitive search
+    }
+  }] : []),
+  {
+    $lookup: {
+      from: "shifts",
+      localField: "_id",
+      foreignField: "club",
+      as: "shifts"
+    }
+  },
+  {
+    $unwind: "$shifts"
+  },
+  {
+    $lookup: {
+      from: "courts",
+      localField: "shifts.court",
+      foreignField: "_id",
+      as: "courtDetails"
+    }
+  },
+  {
+    $unwind: "$courtDetails"
+  },
+  {
+    $match: {
+      "shifts.start": { $gte: now, $lte: endDay },
+      ...(selectedDurations.length > 0 && {
+        "shifts.duration": { $in: selectedDurations }
+      }),
+      ...(selectedWalls.length > 0 && {
+        "courtDetails.walls": { $in: selectedWalls }
+      })
+    }
+  },
+  {
+    $group: {
+      _id: {
+        club: "$_id",
+        court: "$shifts.court"
+      },
+      shifts: {
+        $push: {
+          duration: "$shifts.duration",
+          date: "$shifts.date",
+          start: "$shifts.start",
+          end: "$shifts.end",
+          tolerance: "$shifts.tolerance",
+          status: "$shifts.status",
+          client: "$shifts.client",
+          price: "$shifts.price",
+          fixed: "$shifts.fixed",
+          addons: "$shifts.addons",
+          court: "$shifts.court"
+        }
+      },
+      name: { $first: "$name" },
+      logo: { $first: "$logo" },
+      distance: { $first: "$distance" }
+    }
+  },
+  {
+    $group: {
+      _id: "$_id.club",
+      courts: {
+        $push: {
+          court: "$_id.court",
+          shifts: "$shifts"
+        }
+      },
+      name: { $first: "$name" },
+      logo: { $first: "$logo" },
+      distance: { $first: "$distance" }
+    }
+  },
+  {
+    $lookup: {
+      from: "configs",
+      localField: "_id",
+      foreignField: "club",
+      as: "config"
+    }
+  },
+  {
+    $unwind: {
+      path: "$config",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  ...(sortField && sortOrder ? [{
+    $sort: { [sortField]: sortOrder }
+  }] : []),
+  {
+    $skip: (page - 1) * limit  // Ensure page is 1-based
+  },
+  {
+    $limit: limit
+  },
+  {
+    $project: {
+      _id: 0,
+      club: {
+        id: "$_id",
+        name: "$name",
+        logo: "$logo",
+        distance: "$distance",
+        shiftPrice: "$config.shiftPrice"
+      },
+      courts: 1
+    }
+  }
+];
+
+
 
 
 

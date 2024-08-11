@@ -16,7 +16,13 @@ export interface IShift {
   fixed?:boolean
   addons?:ObjectId[]
 }
-
+export interface filter{
+  orderByDistance: boolean;
+  duraciones: any[];
+  cerramientos: any[];
+  paredes: any[];
+  distance: number;
+}
 export interface IShiftDoc extends IShift, Document {
 }
 

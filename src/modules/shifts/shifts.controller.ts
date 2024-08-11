@@ -202,21 +202,20 @@ export const getWeekShifts = catchAsync(async (req: Request, res: Response) => {
   res.send(shifts)
 })
 
-
 //get shift for players
-
 export const getShiftPlayers = catchAsync(async (req: Request, res: Response) => {
   // const filter = pick(req.query, ['name', 'role']);
-  const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   if (typeof req.params['date'] === 'string') {
+    const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
     const userLocation= req.body.userLocation
-    let result = await shiftService.getShiftForPlayerAndDistance(req.params['date'], options,userLocation);
-    // Flatten and remove duplicates
+    const search = req.body.search
+    const filterObject = req.body.filterObject
+
+    let result = await shiftService.getShiftForPlayerAndDistance(req.params['date'], options,userLocation,search,filterObject);
 
     if(!result) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Shifts not found');
     }
-    debugger
     result.forEach(club => {
       const uniqueShifts : any[] = [];
       const seenStarts = new Set();
