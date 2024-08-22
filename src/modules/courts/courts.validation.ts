@@ -5,9 +5,10 @@ import { NewCreatedCourt } from './courts.interfaces';
 const createCourtBody: Record<keyof NewCreatedCourt, any> = {
   name: Joi.string().required(),
   number: Joi.number().required(),
-  surface: Joi.string().required(),
+  surface: Joi.string().required().valid('cemento', 'sintetico'),
   walls: Joi.string().required().valid('cemento', 'blindex'),
   club: Joi.string().custom(objectId),
+  enclosure: Joi.string().required().valid('indoor', 'exterior', 'techada'),
  
 //   inUse:Joi.boolean.required()
 };
@@ -43,7 +44,7 @@ export const updateCourt = {
         number: Joi.number(),
         surface: Joi.string().valid('cemento', 'sintetico'),
         walls: Joi.string().valid('cemento', 'blindex'),
-        
+        enclosure: Joi.string().valid('indoor', 'exterior', 'techada'),
     })
     .min(1),
 };

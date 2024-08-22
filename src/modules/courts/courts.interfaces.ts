@@ -8,6 +8,7 @@ export interface ICourt {
   surface: string;
   walls: string;
   inUse: boolean;
+  enclosure: string;
   club: mongoose.Types.ObjectId;
  
 }

@@ -70,6 +70,11 @@ export const sendVerificationEmailUser = catchAsync(async (req: Request, res: Re
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   console.log(req.query['token'])
   debugger
-  await authService.verifyEmail(req.query['token']);
+  let user = await authService.verifyEmail(req.query['token']);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'No se encontro el usuario')
+  }
+  user.password = req.body.password;
+  await userService.updateUserById(user._id, user);
   res.status(httpStatus.NO_CONTENT).send();
 });

@@ -5,7 +5,7 @@ import { AccessAndRefreshTokens } from '../token/token.interfaces';
 export interface IUser {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role: string;
   isEmailVerified: boolean;
   clubs: mongoose.Types.ObjectId[];

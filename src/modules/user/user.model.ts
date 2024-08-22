@@ -27,7 +27,6 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
     },
     password: {
       type: String,
-      required: true,
       trim: true,
       minlength: 8,
       validate(value: string) {
@@ -35,7 +34,7 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
           throw new Error('Password must contain at least one letter and one number');
         }
       },
-      private: true, // used by the toJSON plugin
+      //private: true, // used by the toJSON plugin
     },
     role: {
       type: String,
@@ -88,7 +87,7 @@ userSchema.method('isPasswordMatch', async function (password: string): Promise<
 
 userSchema.pre('save', async function (next) {
   const user = this;
-  if (user.isModified('password')) {
+  if (user.isModified('password') && user.password) {
     user.password = await bcrypt.hash(user.password, 8);
   }
   next();

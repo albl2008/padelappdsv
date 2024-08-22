@@ -5,8 +5,7 @@ import { NewCreatedClub } from './club.interfaces';
 const createClubBody: Record<keyof NewCreatedClub, any> = {
   name: Joi.string().required(),
   location: Joi.object().keys({
-    lat: Joi.number().required(),
-    lng: Joi.number().required(),
+    coordinates: Joi.array().required(),
   }),
   address: Joi.string().required(),
   logo: Joi.string().allow(null).allow(''),
@@ -45,8 +44,8 @@ export const updateClub = {
     .keys({
       name: Joi.string(),
       location: Joi.object().keys({
-        lat: Joi.number(),
-        lng: Joi.number(),
+        coordinates: Joi.array().required(),
+        type: Joi.string().valid('Point'),
       }),
       address: Joi.string(),
       logo: Joi.string().allow(null).allow(''),

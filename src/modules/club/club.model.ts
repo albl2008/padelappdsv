@@ -12,12 +12,9 @@ const clubSchema = new mongoose.Schema<IClubDoc, IClubModel>(
       trim: true,
     },
     location: {
-      lat: {
-        type: Number,
-        required: true,
-      },
-      lng: {
-        type: Number,
+      type: { type: String, default: 'Point' },
+      coordinates: {
+        type: [Number],
         required: true,
       },
     },

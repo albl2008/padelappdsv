@@ -24,6 +24,11 @@ const courtSchema = new mongoose.Schema<ICourtDoc, ICourtModel>(
         required: true,
         trim: true,
     },
+    enclosure: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     
     inUse: {
       type: Boolean,

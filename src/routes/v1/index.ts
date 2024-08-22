@@ -9,6 +9,7 @@ import configRoute from './config.route';
 import addonsRoute from './addons.route'
 import clubRoute from './club.route'
 import filesRoute from './upload-file.route'
+import requestsAccessRoute from './requests.route'
 
 const router = express.Router();
 
@@ -18,6 +19,10 @@ interface IRoute {
 }
 
 const defaultIRoute: IRoute[] = [
+  {
+    path: '/request-access',
+    route: requestsAccessRoute,
+  },
   {
     path: '/auth',
     route: authRoute,

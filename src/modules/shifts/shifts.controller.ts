@@ -150,47 +150,71 @@ export const updateShift = catchAsync(async (req: Request, res: Response) => {
 
 export const bookingShift = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['shiftId'] === 'string') {
-    const shiftToAssing = req.body
+    const shiftToAssign = req.body;
+  
+    const fixed = req.body.fixed;
+    const start = dayjs(req.body.start);
+    const duration = req.body.duration || 2.5; // Default duration if not provided
     debugger
-    const fixed = req.body.fixed
     if (fixed) {
-      const start = dayjs(req.body.start).toDate()
-      const day = dayjs(start).day()
-      const firstDayOfMonth = dayjs(req.body.start).startOf('month').toDate();
-      const lastDayOfMonth = dayjs(req.body.start).endOf('month').toDate();
-      const monthlyShifts = await shiftService.getShiftsMonth(firstDayOfMonth, lastDayOfMonth,new mongoose.Types.ObjectId(req.body.court), req.user.activeClub)
+      const dayOfWeek = start.day();
+      const firstDayOfMonth = dayjs(req.body.start).startOf('month');
+      const lastDayOfMonth = dayjs(req.body.start).endOf('month');
+      const monthlyShifts = await shiftService.getShiftsMonth(firstDayOfMonth.toDate(), lastDayOfMonth.toDate(), new mongoose.Types.ObjectId(req.body.court), req.user.activeClub);
+
       if (!monthlyShifts) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Shifts not found');
       }
-      const sameDayShifts = monthlyShifts.filter(shift => {
-        const dayDate = dayjs(shift.date).day()
-        if (dayDate === day) {
-        const startHour = dayjs(shift.start).hour()
-        const startMin = dayjs(shift.start).minute()
-        return startHour === dayjs(start).hour() && startMin === dayjs(start).minute()
-        }
-        return false
-      })
 
+      const sameDayShifts = monthlyShifts.filter(shift => {
+        const shiftDayOfWeek = dayjs(shift.date).day();
+        const startHour = dayjs(shift.start).hour();
+        const startMinute = dayjs(shift.start).minute();
+        return shiftDayOfWeek === dayOfWeek && startHour === start.hour() && startMinute === start.minute();
+      });
+      debugger
+      let updatedShifts = [];
       if (sameDayShifts.length > 0) {
         for (const shift of sameDayShifts) {
-          shift.status = { id: 1, sta: 'booked' }
-          req.body = {
-            ...shiftToAssing,
-            status: shift.status
+          const newStartTime = dayjs(shift.date).hour(start.hour()).minute(start.minute()).second(0).millisecond(0).toDate();
+          const newEndTime = dayjs(newStartTime).add(duration, 'hour').toDate();
+          const status = { id: 1, sta: 'booked' };
+          const client = shiftToAssign.client ? shiftToAssign.client : 'Prueba';
+          const fixedShiftBody = {
+            ...shift,
+            start: newStartTime,
+            end: newEndTime,
+            status: status,
+            client: client,
+            fixed: true
           }
-          await shiftService.updateShiftById(new mongoose.Types.ObjectId(shift.id), req.body);
+          const updated = await shiftService.updateShiftById(new mongoose.Types.ObjectId(shift.id), fixedShiftBody);
+          updatedShifts.push(updated);
+          
         }
-        res.send(sameDayShifts)
+        res.send(updatedShifts);
+      } else {
+        const newStartTime = dayjs(req.body.start).toDate();
+        const newEndTime = dayjs(newStartTime).add(duration, 'hour').toDate();
+        shiftToAssign.status = { id: 1, sta: 'booked' };
+        shiftToAssign.start = newStartTime;
+        shiftToAssign.end = newEndTime;
+        const shift = await shiftService.updateShiftById(new mongoose.Types.ObjectId(req.params['shiftId']), shiftToAssign);
+        res.send(shift);
       }
     } else {
-      shiftToAssing.status = { id: 1, sta: 'booked' }
-      const shift = await shiftService.updateShiftById(new mongoose.Types.ObjectId(req.params['shiftId']), req.body);
+      const newStartTime = dayjs(req.body.start).toDate();
+      const newEndTime = dayjs(newStartTime).add(duration, 'hour').toDate();
+      shiftToAssign.status = { id: 1, sta: 'booked' };
+      shiftToAssign.start = newStartTime;
+      shiftToAssign.end = newEndTime;
+      const shift = await shiftService.updateShiftById(new mongoose.Types.ObjectId(req.params['shiftId']), shiftToAssign);
       res.send(shift);
     }
-    
   }
 });
+
+
 
 export const deleteShift = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['shiftId'] === 'string') {

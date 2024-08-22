@@ -90,7 +90,8 @@ export const createAllCourts = async (quantity:number, club: mongoose.Types.Obje
       surface: 'completar',
       walls: 'completar',
       club: club,
-      inUse: false
+      inUse: false,
+      enclosure: 'completar'
     })
   }
 

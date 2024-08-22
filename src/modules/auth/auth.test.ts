@@ -277,7 +277,7 @@ describe('Auth routes', () => {
         .expect(httpStatus.NO_CONTENT);
 
       const dbUser = await User.findById(userOne._id);
-      if (dbUser) {
+      if (dbUser && dbUser.password) {
         const isPasswordMatch = await bcrypt.compare('password2', dbUser.password);
         // eslint-disable-next-line jest/no-conditional-expect
         expect(isPasswordMatch).toBe(true);
